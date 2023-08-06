@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/Provider/note_provider.dart';
+import 'package:notes_app/Provider/user_provider.dart';
 import 'package:notes_app/Screens/add_update_screen.dart';
+import 'package:notes_app/Services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,20 +13,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // String nId = '';
-  // String nTitle = '';
-
   TextEditingController titleController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final notesProvider = Provider.of<NotesProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context).user;
 
     // final height = MediaQuery.sizeOf(context).height;
     // final width = MediaQuery.sizeOf(context).width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Notes List"),
+        title: Text("Notes List ${userProvider.name}"),
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                AuthService().signOut(context);
+              },
+              icon: const Icon(Icons.logout_outlined))
+        ],
       ),
       body: FutureBuilder(
         future: notesProvider.getNote(),
@@ -33,10 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
             return ListView.builder(
               itemCount: notesProvider.notes.length,
               itemBuilder: (context, index) {
-                // Using these in update operations below
-                // nId = notesProvider.notes[index].id.toString();
-                // nTitle = notesProvider.notes[index].title.toString();
-
                 return ListTile(
                   onTap: () {
                     // Go to Update Screen:
